@@ -28,7 +28,7 @@ mkdir -p "$BACK_DIR"
 used_blocks=$(du -s "$TARGET" | awk '{print $1}')
 total_blocks=$(df "$TARGET" | tail -1 | awk '{print $2}')
 
-if [[ -z "$used_blocks"  -z "$total_blocks"  "$total_blocks" -eq 0 ]]; then
+if [[ -z "$used_blocks" ]] || [[ -z "$total_blocks" ]] || [[ "$total_blocks" -eq 0 ]]; then
   echo "Ошибка! Невозможно определить размер диска"
   exit 1
 fi

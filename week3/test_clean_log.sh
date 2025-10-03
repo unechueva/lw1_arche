@@ -2,31 +2,48 @@
 
 LOG_DIR="$HOME/vdisk_test/log"
 BACKUP_DIR="$HOME/vdisk_test/backup"
-SCRIPT="$HOME/lw1_arche/week3/clean_log.sh"
 
-rm -rf "$LOG_DIR" "$BACKUP_DIR"
-mkdir -p "$LOG_DIR" "$BACKUP_DIR"
+mkdir -p "$LOG_DIR"
+mkdir -p "$BACKUP_DIR"
 
+cleanup() {
+    rm -f "$LOG_DIR"/*
+    rm -f "$BACKUP_DIR"/*
+}
+
+create_file() {
+    local name=$1
+    local size_mb=$2
+    dd if=/dev/zero of="$LOG_DIR/$name" bs=1M count="$size_mb" status=none
+}
+
+cleanup
 echo "Тест 1: пустая папка"
-$SCRIPT "$LOG_DIR" 70 5
+echo "Папка: $LOG_DIR"
+~/lw1_arche/week3/clean_log.sh "$LOG_DIR" 70 5
 echo "Тест 1 завершён"
 echo "----"
 
+cleanup
 echo "Создаем несколько маленьких файлов"
-for i in {1..5}; do
-  echo "test$i" > "$LOG_DIR/file$i.txt"
-done
+create_file "file1.txt" 1
+create_file "file2.txt" 1
+create_file "file3.txt" 1
 echo "Тест 2: мало файлов"
-$SCRIPT "$LOG_DIR" 70 5
+echo "Папка: $LOG_DIR"
+~/lw1_arche/week3/clean_log.sh "$LOG_DIR" 70 5
 echo "Тест 2 завершён"
 echo "----"
 
+cleanup
 echo "Создаем большие файлы для переполнения"
-for i in {1..60}; do
-  dd if=/dev/zero of=$LOG_DIR/bigfile$i bs=10M count=1 status=none
-done
+create_file "bigfile1" 200
+create_file "bigfile2" 200
+create_file "bigfile3" 200
+create_file "bigfile4" 200
 echo "Тест 3: переполнение (порог 10%)"
-$SCRIPT "$LOG_DIR" 10 5
+echo "Папка: $LOG_DIR"
+~/lw1_arche/week3/clean_log.sh "$LOG_DIR" 10 3
 echo "Тест 3 завершён"
 echo "----"
 
